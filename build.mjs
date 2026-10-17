@@ -1,4 +1,5 @@
-import {cp, mkdir, readFile, writeFile} from 'node:fs/promises';
+import {cp, mkdir, readFile, writeFile, stat} from 'node:fs/promises';
+import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
 const source='source/site';
 await mkdir('_site',{recursive:true});
@@ -27,6 +28,12 @@ await writeFile('_site/robots.txt','User-agent: *\nAllow: /\nSitemap: https://li
 await writeFile('_site/sitemap.xml','<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://links.mosolov.dev/</loc></url></urlset>');
 assert.ok(html.includes('href="https://links.mosolov.dev/"'));
 assert.ok(html.includes('href="https://mosolov.work/"'));
+for(const [,url] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
+  if(/^(?:https?:|#|mailto:|tel:)/.test(url))continue;
+  const path=resolve('_site',url.replace(/^\//,'').split('?')[0]);
+  assert.ok((await stat(path)).isFile(),`Missing static dependency: ${url}`);
+}
+assert.ok((await readFile('_site/mobile-navigation.js','utf8')).includes("'./mobile-header.js"));
 const {items}=JSON.parse(await readFile('_site/bookmarks.json','utf8'));
 assert.ok(items.length>100);
 console.log(`Built ${items.length} bookmarks at https://links.mosolov.dev/`);
