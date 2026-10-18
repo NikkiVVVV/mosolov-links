@@ -27,7 +27,7 @@ await writeFile('_site/.nojekyll','');
 await writeFile('_site/robots.txt','User-agent: *\nAllow: /\nSitemap: https://links.mosolov.dev/sitemap.xml\n');
 await writeFile('_site/sitemap.xml','<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://links.mosolov.dev/</loc></url></urlset>');
 assert.ok(html.includes('href="https://links.mosolov.dev/"'));
-assert.ok(html.includes('href="https://mosolov.work/"'));
+assert.ok(!html.includes('aria-label="На главную"'));
 for(const [,url] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
   if(/^(?:https?:|#|mailto:|tel:)/.test(url))continue;
   const path=resolve('_site',url.replace(/^\//,'').split('?')[0]);
