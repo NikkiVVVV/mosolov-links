@@ -39,7 +39,7 @@ jobs:
           ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           for attempt in $(seq 1 12); do
-            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq "[.artifacts[] | select(.name == \"$ARTIFACT_NAME\")] | length")
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" | jq --arg name "$ARTIFACT_NAME" '[.artifacts[] | select(.name == $name)] | length')
             if [ "$count" = "1" ]; then exit 0; fi
             sleep 5
           done
